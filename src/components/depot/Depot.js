@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { url } from '../../utilities';
+import { Link } from 'react-router-dom';
+import { SetProduct } from '../../actions';
 
 const Depot=()=> {
     const dispatch = useDispatch();
@@ -13,7 +15,8 @@ const Depot=()=> {
         name: userData.name,
         deliveryaddress: userData.deliveryaddress,
       });
-    const userBlockchainDetails = useSelector((state)=>state.UserBlockchainDetails.userBlockchainDetails)
+    const userBlockchainDetails = useSelector((state)=>state.UserBlockchainDetails.userBlockchainDetails);
+    // const setProduct = useSelector((state)=>state.SetProduct.setProduct)
     console.log(userBlockchainDetails);
       const config = {
         headers: {
@@ -35,27 +38,38 @@ const Depot=()=> {
   return (
     <div>
         <div>Depot</div>
-        <div>
+        <table class="table">
+        <thead class="thead-light">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Order ID</th>
+      <th scope="col">Product(s)</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Action</th>
+      </tr>
+      </thead>
+      <tbody>
             {
+
+                
                 userBlockchainDetails.map((d)=>{
                     const data = d.data.details;
                     console.log(data)
-                    return(<div>
-                        <div className='d-flex'>
-                            <div>{data.productId}</div>
-                            <div className='mx-2'>{data.product1}</div>
-                        <div className='mx-2'>{data.quantity1}</div>
-                        </div>
-                        <div className='d-flex'>
-                        <div>{data.productId}</div>
-                            <div className='mx-2'>{data.product2}</div>
-                        <div className='mx-2'>{data.quantity2}</div>
-                        </div>
-                        </div>
+                    return(
+
+  <tr>
+      <th scope="row">1</th>
+      <td>{data.productId}</td>
+      <td>{data.product?data.product:data.product1 }   {data.product?"":data.product2}</td>
+      <td>{`${data.quantity?data.quantity:data.quantity1}L`}   {data.quantity?"":data.quantity2}</td>
+      <td><Link to="/dep/product"><button onClick={()=>{dispatch(SetProduct(d))}}>View</button></Link></td>
+    </tr>
+                         
                     )
                 })
             }
-        </div>
+             </tbody>
+</table>
     </div>
   )
 }

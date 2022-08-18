@@ -57,7 +57,7 @@ const FireflyData=()=> {
                 return res.data[0].value;
             })
             msg.push(obj);
-            if(obj.details.sender==userData._id || obj.details.sender==userData._id)
+            if(obj.details.sender==userData._id || obj.details.receiver==userData._id)
             {
                 userArr.push({
                     message,

@@ -21,6 +21,12 @@ export const UserBlockchainDetails = (data) => {
   };
 };
 
+export const SetProduct = (data)=>{
+  return{
+    type:'SET_PRODUCT',
+    payload:data,
+  };
+}
 
 export const LogoutUser = () => {
   return {

@@ -13,6 +13,7 @@ import Refinery from './components/refinery/Refinery';
 import RefineryPlaceOrder from './components/refinery/RefineryPlaceOrder';
 import Depot from './components/depot/Depot';
 import DepotPlaceOrder from './components/depot/DepotPlaceOrder';
+import DepotProduct from './components/depot/DepotProduct';
 import RetailUnit from './components/retailer/RetailUnit';
 import RetailPlaceOrder from './components/retailer/RetailPlaceOrder';
 import FireflyData from './components/firefly/FireflyData';
@@ -22,7 +23,6 @@ function App() {
   return (
     <div className='App'>
         <div className='d-none'>
-
         <FireflyData />
         </div>
       <Routes>
@@ -37,6 +37,7 @@ function App() {
         <Route path="/ref/pod" element={<RefineryPlaceOrder />}></Route>
         <Route path="/dep" element={<Depot />}></Route>
         <Route path="/dep/pod" element={<DepotPlaceOrder />}></Route>
+        <Route path='/dep/product'element={<DepotProduct />}></Route>
         <Route path="/rtl" element={<RetailUnit />}></Route>
         <Route path='/rtl/pod' element={<RetailPlaceOrder />}></Route>
         {/* <Route path='/quiz' element={<Quiz />}></Route>
