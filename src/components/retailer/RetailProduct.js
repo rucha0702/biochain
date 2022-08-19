@@ -14,7 +14,7 @@ const MEMBERS = [
 const MAX_MESSAGES = 50;
 const DATE_FORMAT = 'MM/DD/YYYY h:mm:ss A';
 
-const DepotProduct=()=> {
+const RetailProduct=()=> {
     const dispatch = useDispatch();
      let navigate = useNavigate();
      const [messages, setMessages] = useState([]);
@@ -78,7 +78,7 @@ const DepotProduct=()=> {
           const id = obj.value.details.productId
           const sender = obj.value.details.sender;
           const receiver = obj.value.details.receiver;
-          return(<div className='d-flex flex-column align-items-start'>
+          return(<div className='d-flex flex-column align-items-start my-3'>
             <div>ID: {id}</div>
             <div>Created at: {time}</div>
             <div>Sender: {sender}</div>
@@ -92,7 +92,7 @@ const DepotProduct=()=> {
       load();
     },[]);
       useEffect(() => {
-        if (!userData.accessToken || userData.type!="Depot") {
+        if (!userData.accessToken || userData.type!="Retail Unit") {
           navigate('/login');
         }
         // else{
@@ -106,7 +106,7 @@ const DepotProduct=()=> {
       const d = productDetails.data.details;
   return (
     <div>
-        <div>DepotProduct</div>
+        <div>RetailProduct</div>
         <ul class="list-group">
   <li class="list-group-item disabled">Order ID : {d.productId}</li>
   <li class="list-group-item">Sender: {d.senderType}-{d.sender}</li>
@@ -119,17 +119,8 @@ const DepotProduct=()=> {
     <MessageList track = {track}/>
   
 </div>
-<div className='d-flex space-betweeen'>
-  <div>
-    <button className='btn btn-primary'>Send Order</button>
-  </div>
-  <div className='mx-5'>
-    <Link className='btn btn-success' to='/dep/pod'>Place Order</Link>
-    {/* <button onClick={()=>{console.log(productDetails.data.details.productId)}}>Place Order</button> */}
-  </div>
-</div>
     </div>
   )
 }
 
-export default DepotProduct;
+export default RetailProduct;

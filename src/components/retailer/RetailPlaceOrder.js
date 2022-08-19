@@ -204,7 +204,7 @@ const RetailPlaceOrder=()=> {
 
         <div>{details.senderType}: {userData.name}</div>
         <div>{details.sender}</div>
-        <div>Product ID: <span className='text-danger'>{details.productId}</span></div>
+        <div>Order ID: <span className='text-danger'>{details.productId}</span></div>
         <form className='form d-flex flex-column align-items-start'>
         {/* {
             Questions.map((ques)=>{
@@ -364,11 +364,11 @@ const RetailPlaceOrder=()=> {
 
           <br />
 
-          <Paper className={classes.paper}>
+          {/* <Paper className={classes.paper}>
             <h1>Last {MAX_MESSAGES} Messages Received</h1>
 
             <MessageList messages={messages}/>
-          </Paper>
+          </Paper> */}
         </Grid>
         <Grid item xs={1} md={2} xl={3}>
           <FormControl style={{ float: 'right' }}>

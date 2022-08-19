@@ -26,6 +26,7 @@ const RefineryPlaceOrder=()=> {
     //   );
     const dispatch = useDispatch();
      let navigate = useNavigate();
+     const productDetails = useSelector((state)=>state.SetProduct.setProduct);
       const userData = useSelector((state) => state.UserDetails.userDetails);
       const [user, setUser] = useState({
         name: userData.name,
@@ -41,11 +42,11 @@ const RefineryPlaceOrder=()=> {
     //   const [pid,setPid] = useState('');
       const [rate,setRate] = useState(63.45);
       const [details, setDetails] = useState({
-        productId: uuid(),
+        productId: productDetails?productDetails.data.details.productId:uuid(),
         product: "1G ETHANOL",
         productType:"",
-        quantity:200,
-        price:200*rate,
+        quantity:"",
+        price:0,
         sender:userData._id,
         receiver:"",
         senderType:userData.type,
@@ -204,7 +205,7 @@ const RefineryPlaceOrder=()=> {
 
         <div>{details.senderType}: {userData.name}</div>
         <div>{details.sender}</div>
-        <div>Product ID: <span className='text-danger'>{details.productId}</span></div>
+        <div>Order ID: <span className='text-danger'>{details.productId}</span></div>
         <form className='form d-flex flex-column align-items-start'>
         {/* {
             Questions.map((ques)=>{
@@ -262,7 +263,7 @@ const RefineryPlaceOrder=()=> {
             Quantity <span className='mandatory'>*</span>
           </label>
           <input
-            type='text'
+            type='number'
             placeholder='Type your answer here...'
             name='quantity'
             value={details.quantity}
@@ -364,11 +365,11 @@ const RefineryPlaceOrder=()=> {
 
           <br />
 
-          <Paper className={classes.paper}>
+          {/* <Paper className={classes.paper}>
             <h1>Last {MAX_MESSAGES} Messages Received</h1>
 
             <MessageList messages={messages}/>
-          </Paper>
+          </Paper> */}
         </Grid>
         <Grid item xs={1} md={2} xl={3}>
           <FormControl style={{ float: 'right' }}>

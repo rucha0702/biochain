@@ -26,6 +26,7 @@ const DepotPlaceOrder=()=> {
     //   );
     const dispatch = useDispatch();
      let navigate = useNavigate();
+     const productDetails = useSelector((state)=>state.SetProduct.setProduct);
       const userData = useSelector((state) => state.UserDetails.userDetails);
       const [user, setUser] = useState({
         name: userData.name,
@@ -42,13 +43,13 @@ const DepotPlaceOrder=()=> {
       const rate1 = 63.45;
       const rate2 = 96;
       const [details, setDetails] = useState({
-        productId: "",
+        productId: productDetails?productDetails.data.details.productId:uuid(),
         product1: "ETHANOL",
         product2:"PETROLEUM",
-        quantity1:40,
-        quantity2:200,
-        price1:40*rate1,
-        price2:200*rate2,
+        quantity1:"",
+        quantity2:"",
+        price1:0,
+        price2:0,
         sender:userData._id,
         receiver:"",
         senderType:userData.type,
@@ -123,7 +124,7 @@ const DepotPlaceOrder=()=> {
        const classes = useStyles();
        const rows = [];
        for (const message of messages) {
-          console.log(message);
+        //   console.log(message);
            const date = dayjs(message.message.header.created);
            rows.push(<TableRow key={message.message.header.id}>
          <TableCell>{date.format(DATE_FORMAT)}</TableCell>
@@ -194,10 +195,11 @@ const DepotPlaceOrder=()=> {
    
   return (
     <div className={`${classes.root} d-flex flex-column align-items-center`}>
+      {/* <button onClick={()=>{console.log(productDetails.data.details.productId)}}>Place Order</button> */}
 
         <div>{details.senderType}: {userData.name}</div>
         <div>{details.sender}</div>
-        <div>Product ID: <span className='text-danger'>{details.productId}</span></div>
+        <div>Order ID: <span className='text-danger'>{details.productId}</span></div>
         <form className='form d-flex flex-column align-items-start'>
         {/* {
             Questions.map((ques)=>{
@@ -368,11 +370,11 @@ const DepotPlaceOrder=()=> {
 
           <br />
 
-          <Paper className={classes.paper}>
+          {/* <Paper className={classes.paper}>
             <h1>Last {MAX_MESSAGES} Messages Received</h1>
 
             <MessageList messages={messages}/>
-          </Paper>
+          </Paper> */}
         </Grid>
         <Grid item xs={1} md={2} xl={3}>
           <FormControl style={{ float: 'right' }}>

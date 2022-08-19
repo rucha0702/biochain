@@ -8,14 +8,18 @@ import HomePage from './components/homepage/HomePage';
 import Login from './components/login/Login';
 import AdditionalDetails from './components/register/AdditionalDetails';
 import EthanolProducer from './components/ethanolProducer/EthanolProducer';
+import EthanolProduct from './components/ethanolProducer/EthanolProduct';
 import BiomassUnit from './components/biomassUnit/BiomassUnit';
+import BiomassProduct from './components/biomassUnit/BiomassProduct';
 import Refinery from './components/refinery/Refinery';
 import RefineryPlaceOrder from './components/refinery/RefineryPlaceOrder';
+import RefineryProduct from './components/refinery/RefineryProduct';
 import Depot from './components/depot/Depot';
 import DepotPlaceOrder from './components/depot/DepotPlaceOrder';
 import DepotProduct from './components/depot/DepotProduct';
 import RetailUnit from './components/retailer/RetailUnit';
 import RetailPlaceOrder from './components/retailer/RetailPlaceOrder';
+import RetailProduct from './components/retailer/RetailProduct';
 import FireflyData from './components/firefly/FireflyData';
 // import questions from './components/questions';
 
@@ -32,14 +36,18 @@ function App() {
         <Route path='/register' element={<Register />}></Route>
         <Route path='/myprofile' element={<AdditionalDetails />}></Route>
         <Route path="/epu" element={<EthanolProducer />}></Route>
+        <Route path='/epu/product' element={<EthanolProduct />}></Route>
         <Route path="/bmu" element={<BiomassUnit />}></Route>
+        <Route path='/bmu/product' element={<BiomassProduct />}></Route>
         <Route path="/ref" element={<Refinery />}></Route>
         <Route path="/ref/pod" element={<RefineryPlaceOrder />}></Route>
+        <Route path='/ref/product' element={<RefineryProduct />}></Route>
         <Route path="/dep" element={<Depot />}></Route>
         <Route path="/dep/pod" element={<DepotPlaceOrder />}></Route>
         <Route path='/dep/product'element={<DepotProduct />}></Route>
         <Route path="/rtl" element={<RetailUnit />}></Route>
         <Route path='/rtl/pod' element={<RetailPlaceOrder />}></Route>
+        <Route path='/rtl/product' element={<RetailProduct />}></Route>
         {/* <Route path='/quiz' element={<Quiz />}></Route>
         <Route path='/create' element={<Create />}></Route> */}
       </Routes>

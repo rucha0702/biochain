@@ -14,7 +14,7 @@ const MEMBERS = [
 const MAX_MESSAGES = 50;
 const DATE_FORMAT = 'MM/DD/YYYY h:mm:ss A';
 
-const DepotProduct=()=> {
+const RefineryProduct=()=> {
     const dispatch = useDispatch();
      let navigate = useNavigate();
      const [messages, setMessages] = useState([]);
@@ -92,7 +92,7 @@ const DepotProduct=()=> {
       load();
     },[]);
       useEffect(() => {
-        if (!userData.accessToken || userData.type!="Depot") {
+        if (!userData.accessToken || userData.type!="Refinery") {
           navigate('/login');
         }
         // else{
@@ -106,7 +106,7 @@ const DepotProduct=()=> {
       const d = productDetails.data.details;
   return (
     <div>
-        <div>DepotProduct</div>
+        <div>RefineryProduct</div>
         <ul class="list-group">
   <li class="list-group-item disabled">Order ID : {d.productId}</li>
   <li class="list-group-item">Sender: {d.senderType}-{d.sender}</li>
@@ -124,7 +124,7 @@ const DepotProduct=()=> {
     <button className='btn btn-primary'>Send Order</button>
   </div>
   <div className='mx-5'>
-    <Link className='btn btn-success' to='/dep/pod'>Place Order</Link>
+    <Link className='btn btn-success' to='/ref/pod'>Place Order</Link>
     {/* <button onClick={()=>{console.log(productDetails.data.details.productId)}}>Place Order</button> */}
   </div>
 </div>
@@ -132,4 +132,4 @@ const DepotProduct=()=> {
   )
 }
 
-export default DepotProduct;
+export default RefineryProduct;

@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { url } from '../../utilities';
+import { Link } from 'react-router-dom';
+import { SetProduct } from '../../actions';
 
 const RetailUnit=()=> {
     const dispatch = useDispatch();
@@ -13,7 +15,8 @@ const RetailUnit=()=> {
         name: userData.name,
         deliveryaddress: userData.deliveryaddress,
       });
-    const userBlockchainDetails = useSelector((state)=>state.UserBlockchainDetails.userBlockchainDetails)
+    const userBlockchainDetails = useSelector((state)=>state.UserBlockchainDetails.userBlockchainDetails);
+    // const setProduct = useSelector((state)=>state.SetProduct.setProduct)
     console.log(userBlockchainDetails);
       const config = {
         headers: {
@@ -35,30 +38,44 @@ const RetailUnit=()=> {
   return (
     <div>
         <div>Retail Unit</div>
-        <div>
+        <div className='mx-5'>
+    <Link className='btn btn-success my-2' to='/rtl/pod'>Place Order</Link>
+    {/* <button onClick={()=>{console.log(productDetails.data.details.productId)}}>Place Order</button> */}
+  </div>
+        <table class="table">
+        <thead class="thead-light">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Order ID</th>
+      <th scope="col">Product(s)</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Action</th>
+      </tr>
+      </thead>
+      <tbody>
             {
+
+                
                 userBlockchainDetails.map((d)=>{
                     const data = d.data.details;
                     console.log(data)
-                    return(<div>
-                        <div className='d-flex'>
-                            <div>{data.productId}</div>
-                            <div className='mx-2'>{data.product}</div>
-                        <div className='mx-2'>{data.quantity}</div>
-                        </div>
-                        {/* <div className='d-flex'>
-                        <div>{data.productId}</div>
-                            <div className='mx-2'>{data.product2}</div>
-                        <div className='mx-2'>{data.quantity2}</div>
-                        </div> */}
-                        </div>
+                    return(
+
+  <tr>
+      <th scope="row">1</th>
+      <td>{data.productId}</td>
+      <td>{data.product?data.product:data.product1 }   {data.product?"":data.product2}</td>
+      <td>{`${data.quantity?data.quantity:data.quantity1}L`}   {data.quantity?"":data.quantity2}</td>
+      <td><Link to="/rtl/product"><button onClick={()=>{dispatch(SetProduct(d))}}>View</button></Link></td>
+    </tr>
+                         
                     )
                 })
             }
-        </div>
+             </tbody>
+</table>
     </div>
   )
 }
-
 
 export default RetailUnit;
