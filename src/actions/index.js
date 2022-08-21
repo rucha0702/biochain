@@ -14,6 +14,13 @@ export const UserDetails = (data) => {
   };
 };
 
+export const AllUsers = (data)=>{
+  return{
+    type:"ALL_USERS",
+    payload: data
+  }
+}
+
 export const UserBlockchainDetails = (data) => {
   return {
     type: 'USER_BLOCKCHAIN_DETAILS',
@@ -26,6 +33,20 @@ export const SetProduct = (data)=>{
     type:'SET_PRODUCT',
     payload:data,
   };
+}
+
+export const SetCurrentProduct = (data)=>{
+  return{
+    type:'SET_CURRENT_PRODUCT',
+    payload:data,
+  };
+}
+
+export const AvailableProduct = (data)=>{
+  return{
+    type: "AVAILABLE_PRODUCT",
+    payload:data,
+  }
 }
 
 export const LogoutUser = () => {

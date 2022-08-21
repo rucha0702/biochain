@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { url } from '../../utilities';
 import { Link } from 'react-router-dom';
 import { FireFly } from '../../firefly';
+import { SetProduct,AvailableProduct } from '../../actions';
+import TrackProduct from '../TrackProduct';
 
 const MEMBERS = [
   'http://localhost:5000',
@@ -20,6 +22,7 @@ const BiomassProduct=()=> {
      const [messages, setMessages] = useState([]);
      const [track,setTrack] = useState([]);
       const userData = useSelector((state) => state.UserDetails.userDetails);
+      const availableProduct = useSelector((state)=>state.AvailableProduct.availableProduct);
       const productDetails = useSelector((state)=>state.SetProduct.setProduct);
       const [user, setUser] = useState({
         name: userData.name,
@@ -73,12 +76,12 @@ const BiomassProduct=()=> {
       const {track} = options;
       return(
 
-        track.map((obj)=>{
+        track.map((obj,i)=>{
           const time = obj.created;
           const id = obj.value.details.productId
           const sender = obj.value.details.sender;
           const receiver = obj.value.details.receiver;
-          return(<div className='d-flex flex-column align-items-start'>
+          return(<div key={i} className='d-flex flex-column align-items-start my-3'>
             <div>ID: {id}</div>
             <div>Created at: {time}</div>
             <div>Sender: {sender}</div>
@@ -108,6 +111,7 @@ const BiomassProduct=()=> {
     <div>
         <div>Biomass Product</div>
         <ul class="list-group">
+        <li class="list-group-item">Availability-<b>ETHANOL: {availableProduct.ethanol}</b></li>
   <li class="list-group-item disabled">Order ID : {d.productId}</li>
   <li class="list-group-item">Sender: {d.senderType}-{d.sender}</li>
   <li class="list-group-item">Receiver: {d.receiverType}-{d.receiver}</li>
@@ -116,8 +120,14 @@ const BiomassProduct=()=> {
 </ul>
 <div>
   
-    <MessageList track = {track}/>
+    {/* <MessageList track = {track}/> */}
+    <TrackProduct />
   
+</div>
+<div className='d-flex space-betweeen'>
+  <div>
+  <Link className='btn btn-primary' to='/bmu/sod'>Send Order</Link>
+  </div>
 </div>
     </div>
   )

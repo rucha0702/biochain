@@ -8,14 +8,18 @@ import { Provider } from 'react-redux';
 import store from './store';
 ReactDOM.render(
 <Provider store={store}>
-    <React.StrictMode>
+   
       <Router>
         <App />
       </Router>
-    </React.StrictMode>
+   
   </Provider>, document.getElementById('root'));
 
-
+{/* <React.StrictMode>
+      <Router>
+        <App />
+      </Router>
+    </React.StrictMode> */}
 // import React from 'react';
 // import ReactDOM from 'react-dom';
 // import '../node_modules/bootstrap/dist/css/bootstrap.min.css';

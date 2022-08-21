@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { url } from '../../utilities';
 import { Link } from 'react-router-dom';
 import { FireFly } from '../../firefly';
+import { SetProduct,AvailableProduct } from '../../actions';
+import TrackProduct from '../TrackProduct';
 
 const MEMBERS = [
   'http://localhost:5000',
@@ -20,7 +22,12 @@ const EthanolProduct=()=> {
      const [messages, setMessages] = useState([]);
      const [track,setTrack] = useState([]);
       const userData = useSelector((state) => state.UserDetails.userDetails);
+      const availableProduct = useSelector((state)=>state.AvailableProduct.availableProduct);
       const productDetails = useSelector((state)=>state.SetProduct.setProduct);
+      const allUsers = useSelector((state)=>state.AllUsers.allUsers);
+      const d = productDetails.data.details;
+     const[senderOrg,setSenderOrg] = useState({}); 
+     const[receiverOrg,setReceiverOrg] = useState({});
       const [user, setUser] = useState({
         name: userData.name,
         deliveryaddress: userData.deliveryaddress,
@@ -78,18 +85,41 @@ const EthanolProduct=()=> {
           const id = obj.value.details.productId
           const sender = obj.value.details.sender;
           const receiver = obj.value.details.receiver;
-          return(<div className='d-flex flex-column align-items-start'>
-            <div>ID: {id}</div>
+          return(<div className='d-flex flex-column align-items-start my-3'>
+          <div>Order ID: {id}</div>
             <div>Created at: {time}</div>
-            <div>Sender: {sender}</div>
-            <div>Receiver: {receiver}</div>
+            <div className='d-flex align-items-center'>
+              <div>Sender : </div>
+              <div className='small mx-1'>{sender}</div>
+            </div>
+            
+            <div className='d-flex align-items-center'>
+            <div>Receiver :</div>
+            <div className='small mx-1'>{receiver}</div>
+            </div>
           </div>)
         })
       )
 
      }
+
+
+    const setUserDetail = ()=>{
+       for(const i in allUsers){
+        if(allUsers[i].id==d.sender)
+        {
+          setSenderOrg(allUsers[i])
+        }
+        if(allUsers[i].id==d.receiver)
+        {
+          setReceiverOrg(allUsers[i])
+        }
+      }
+     }
     useEffect(()=>{
       load();
+      setUserDetail();
+     
     },[]);
       useEffect(() => {
         if (!userData.accessToken || userData.type!="Ethanol Producer") {
@@ -103,21 +133,30 @@ const EthanolProduct=()=> {
         // console.log(user);
       }, [userData, navigate]);
 
-      const d = productDetails.data.details;
   return (
     <div>
         <div>EthanolProduct</div>
         <ul class="list-group">
-  <li class="list-group-item disabled">Order ID : {d.productId}</li>
+        <li class="list-group-item">Availability-<b>ETHANOL: {availableProduct.ethanol}</b></li>
+        <li class="list-group-item disabled">Order ID : {d.productId}</li>
+  <li class="list-group-item disabled">Sender name : {senderOrg.name}</li>
   <li class="list-group-item">Sender: {d.senderType}-{d.sender}</li>
+  <li class="list-group-item disabled">Receiver name : {receiverOrg.name}</li>
   <li class="list-group-item">Receiver: {d.receiverType}-{d.receiver}</li>
   {/* <li class="list-group-item">{d.product=="BIOETHANOL"?"Quantity-"d.quantity:}</li> */}
   <li class="list-group-item">Vestibulum at eros</li>
 </ul>
+<div className={`${d.productStatus=="AtRef"?"btn btn-success":"d-none"}`}>Reached at Refinery</div>
 <div>
   
-    <MessageList track = {track}/>
+    {/* <MessageList track = {track}/> */}
+    <TrackProduct />
   
+</div>
+<div className='d-flex space-betweeen'>
+  <div className={`${d.productStatus!="AtRef"?"":"d-none"}`}>
+  <Link className='btn btn-primary' to='/epu/sod'>Send Order</Link>
+  </div>
 </div>
     </div>
   )

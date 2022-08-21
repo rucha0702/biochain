@@ -10,6 +10,7 @@ import { FireFly, } from '../../firefly';
 import ReconnectingWebsocket from 'reconnecting-websocket';
 import dayjs from 'dayjs';
 import uuid from 'react-uuid';
+import './DepotPlaceOrder.css';
 
 const MEMBERS = [
     'http://localhost:5000',
@@ -26,8 +27,11 @@ const DepotPlaceOrder=()=> {
     //   );
     const dispatch = useDispatch();
      let navigate = useNavigate();
+     const allUsers = useSelector((state)=>state.AllUsers.allUsers)
+     const [receiverId, setReceiverId] = useState("");
      const productDetails = useSelector((state)=>state.SetProduct.setProduct);
       const userData = useSelector((state) => state.UserDetails.userDetails);
+      const d = productDetails.data.details;
       const [user, setUser] = useState({
         name: userData.name,
         deliveryaddress: userData.deliveryaddress,
@@ -42,27 +46,35 @@ const DepotPlaceOrder=()=> {
     //   const [pid,setPid] = useState('');
       const rate1 = 63.45;
       const rate2 = 96;
+      const senderDetails = {
+        deliveryaddress:userData.deliveryaddress
+      }
       const [details, setDetails] = useState({
         productId: productDetails?productDetails.data.details.productId:uuid(),
         product1: "ETHANOL",
         product2:"PETROLEUM",
-        quantity1:"",
-        quantity2:"",
+        quantity1:d?d.quantity1:"",
+        weight1:"",
+        quantity2:d?d.quantity2:"",
+        weight2:"",
         price1:0,
         price2:0,
         sender:userData._id,
         receiver:"",
         senderType:userData.type,
-        receiverType:"Refinery"
+        receiverType:"Refinery",
+        senderName:userData.name,
+        orderStatus: "fromDepo",
+        productStatus: "",
+        senderDetails:senderDetails,
    })
    const handleChange = (e) => {
        e.preventDefault();
        const name = e.target.name;
        const value = e.target.value;
-   
+      //  details.receiver = receiverId;
        setDetails({ ...details, [name]: value });
      };
-   const classes = useStyles();
    const [products, setProducts] = useState([]);
    const [messages, setMessages] = useState([]);
    const [messageText, setMessageText] = useState(userData.deliveryaddress);
@@ -119,68 +131,7 @@ const DepotPlaceOrder=()=> {
        }
        return name;
    };
-   const MessageList = (options) => {
-       const { messages } = options;
-       const classes = useStyles();
-       const rows = [];
-       for (const message of messages) {
-        //   console.log(message);
-           const date = dayjs(message.message.header.created);
-           rows.push(<TableRow key={message.message.header.id}>
-         <TableCell>{date.format(DATE_FORMAT)}</TableCell>
-         <TableCell>{orgName(message)}</TableCell>
-         <TableCell className={classes.scrollRight}>
-           <div>
-             {/* <pre>
-               {message.data
-                   .map((d) => JSON.stringify(d?.value || '', null, 2))
-                   .join(', ')}
-             </pre> */}
-             <pre>
-               {message.data
-                   .map((d) => {if(d){
-                       const obj = JSON.stringify(d.value)
-                       const x = d.value.details?d.value.details:"";
-                       if(x!="")
-                       {
-                           arr.push(message)
-                       }
-                       return(
-                       <div key={message.id}>
-                           {/* <div>{d.value.details.map((x)=>{
-                               return(
-                                   <div>
-                                       {x}
-                                   </div>
-                               )
-                           })}</div> */}
-                           {/* <div>{JSON.stringify(d.value.messageText)}</div> */}
-                           <div>{message.message.header.id}</div>
-                            <div>{x.product}</div>
-                            <div>{x.type}</div>
-                            <div>{x.quantity}</div>
-                            <div>{x.price}</div>
-                            <div>{x.sender}</div>
-                            <div>{x.receiver}</div>
-                       </div>
-                   )}
-                   setProducts(arr);})}
-             </pre>
-           </div>
-         </TableCell>
-       </TableRow>);
-       }
-       return (<Table>
-       <TableHead>
-         <TableRow>
-           <TableCell>Time</TableCell>
-           <TableCell>From</TableCell>
-           <TableCell>Data</TableCell>
-         </TableRow>
-       </TableHead>
-       <TableBody>{rows}</TableBody>
-     </Table>);
-   };
+ 
 
    useEffect(() => {
      if (!userData.accessToken || userData.type!="Depot") {
@@ -194,26 +145,129 @@ const DepotPlaceOrder=()=> {
    }, [load]);
    
   return (
-    <div className={`${classes.root} d-flex flex-column align-items-center`}>
+    <div className={`d-flex flex-column align-items-center`}>
       {/* <button onClick={()=>{console.log(productDetails.data.details.productId)}}>Place Order</button> */}
 
         <div>{details.senderType}: {userData.name}</div>
         <div>{details.sender}</div>
         <div>Order ID: <span className='text-danger'>{details.productId}</span></div>
-        <form className='form d-flex flex-column align-items-start'>
-        {/* {
-            Questions.map((ques)=>{
+   
+
+        <form className="" style={{width:"80%"}} noValidate>
+     <div className='form-row'>
+      <div className='col-md-1'>Ethanol:</div>
+     </div>
+  <div className="form-row">
+    <div className="col-md-3 mb-3">
+      <input type="number" name='quantity1' value={details.quantity1} onChange={handleChange} className="form-control ip" id="quantity1" placeholder="Volume(L)" required />
+      <div className="valid-tooltip">
+        Looks good!
+      </div>
+    </div>
+   
+    {/* <div className="col-md-3 mb-3">
+      <input type="number" name='weight1' onChange={handleChange} className="form-control ip" id="validationTooltip02" placeholder="Weight(KG)" value={details.weight1} required />
+      <div className="valid-tooltip">
+        Looks good!
+      </div>
+    </div> */}
+    <div className='mx-3'>
+    Rate: {rate1} /L
+    </div>
+    <div>
+    Price: {rate1*details.quantity1} INR
+    </div>
+  </div>
+
+  <div className='form-row'>
+      <div className='col-md-1'>Petroleum:</div>
+     </div>
+  <div className="form-row">
+    <div className="col-md-3 mb-3">
+      <input type="number" name='quantity2' value={details.quantity2} onChange={handleChange} className="form-control ip" id="quantity2" placeholder="Volume(L)" />
+      <div className="valid-tooltip">
+        Looks good!
+      </div>
+    </div>
+   
+    {/* <div className={`col-md-3 mb-3`}>
+      <input type="number" name='weight2' onChange={handleChange} className={`form-control ip`} id="validationTooltip02" placeholder="Weight(KG)" value={details.weight2} />
+      <div className="valid-tooltip">
+        Looks good!
+      </div>
+    </div> */}
+    <div className='mx-3'>
+    Rate: {rate2} /L
+    </div>
+    <div>
+    Price: {rate2*details.quantity2} INR
+    </div>
+  </div>
+  <div className='form-row'>
+  <div className="col-md-4 my-3">
+      <select className='custom-select'  name="receiver" onChange={(e)=>{
+        const selectedId = e.target.value;
+        setReceiverId(selectedId);
+        setDetails({ ...details, [e.target.name]: e.target.value });
+        console.log(details.receiver);
+      }}>
+        <option value="">Select</option>
+        {
+          allUsers.map((d,i)=>{
+            if(d.type=="Refinery")
+            {
               return(
-                <div className="field" id={ques.question}>
-                <span>{ques.id}</span>
-                <label>{ques.question}</label>
-                <input type={ques.type} name = {ques.name} value={ques.value} onChange={handleChange} />
-                <a href={ques.urlP}>Prev</a>
-                <a href={ques.urlN}>Next</a>
-                </div>
+                <option key={i} value = {d.id}>{d.name}</option>
               )
-            })
-          } */}
+            }
+          })
+        }
+      </select>
+      
+    </div>
+    {/* <div>{receiverId} : ;</div>
+    <div>{details.receiver}</div> */}
+ <div className="col-md-4 my-3">
+      <input type="text" name='receiver' value={receiverId} onChange={handleChange} className="form-control ip" id="receiver" placeholder="Receiver ID" required />
+      <div className="valid-tooltip">
+        Looks good!
+      </div>
+    </div>
+ </div>
+
+   <div className='text-left my-3 mb-4 ip p-2 rounded' style={{width:"50%"}}>
+    <div>Delivery Address: </div>
+    <div>{userData.deliveryaddress}</div>
+   </div>
+  <div className="form-row align-left  p-1 rounded" style={{width:"70%"}}>
+    <div className="col-md-3 mb-3 text-left">
+    City: <span className=''>Noida</span>
+    </div>
+    <div className="col-md-3 mb-3 text-left">
+    State: <span className=''>Uttar Pradesh</span>
+    </div>
+    <div className="col-md-3 mb-3 text-left">
+    Pincode: <span className=''>201301</span>
+    </div>
+  </div>
+
+  {/* <div className='field' id='receiver'>
+          <label className='question  mx-5 my-2'>
+            Refinery ID <span className='mandatory'>*</span>
+          </label>
+          <input
+            type='text'
+            placeholder='Type your answer here...'
+            name='receiver'
+            value={details.receiver}
+            onChange={handleChange}
+          />
+        </div> */}
+  {/* <button className="btn btn-primary" type="submit">Submit form</button> */}
+</form>
+
+        {/* <form className='form d-flex flex-column align-items-start'>
+        
         <div className='field' id='quantity1'>
           <label className='question mx-5 my-2'>
             Ethanol <span className='mandatory'>*</span>
@@ -248,34 +302,6 @@ const DepotPlaceOrder=()=> {
         <div className=' mx-5 my-2'>Rate: {rate2} /L</div>
         <div className=' mx-5 my-2'>Price: {rate2*details.quantity2} INR</div>
 
-
-        {/* <div className='field' id='type'>
-          <span className='index'>Q2.</span>
-          <label className='question'>
-            Type <span className='mandatory'>*</span>
-          </label>
-          <input
-            type='text'
-            placeholder='Type your answer here...'
-            name='type'
-            value={details.productType}
-            onChange={handleChange}
-          />
-        </div> */}
-
-        {/* <div className='field' id='quantity'>
-          <label className='question  mx-5 my-2'>
-            Quantity <span className='mandatory'>*</span>
-          </label>
-          <input
-            type='text'
-            placeholder='Type your answer here...'
-            name='quantity'
-            value={details.quantity}
-            onChange={handleChange}
-          /> L
-        </div> */}
-
         <div className='field' id='receiver'>
           <label className='question  mx-5 my-2'>
             Refinery ID <span className='mandatory'>*</span>
@@ -289,11 +315,11 @@ const DepotPlaceOrder=()=> {
           />
         </div>
 
-      </form>
+      </form> */}
       <Grid container spacing={3}>
         <Grid item xs={1} md={2} xl={3}/>
         <Grid item xs={10} md={8} xl={6}>
-          <Paper className={classes.paper} component="form" onSubmit={async (event) => {
+          <Paper component="form" onSubmit={async (event) => {
             event.preventDefault();
             try {
                 if (messageText === '') {
@@ -327,7 +353,7 @@ const DepotPlaceOrder=()=> {
                         },
                     ]);
                 }
-                setConfirmationMessage('Message sent');
+                setConfirmationMessage('Order Placed');
             }
             catch (err) {
                 setConfirmationMessage(`Error: ${err}`);
@@ -337,9 +363,9 @@ const DepotPlaceOrder=()=> {
 
             <FormControlLabel control={<Switch checked={!isPrivate} color="primary" onClick={() => setIsPrivate(!isPrivate)}/>} label={isPrivate
             ? 'Choose recipients'
-            : 'Broadcast to the whole network'} className={`${classes.formControl} d-none`}/>
+            : 'Broadcast to the whole network'} className={`d-none`}/>
             {isPrivate && (<Box>
-                <FormControl component="fieldset" className={classes.formControl}>
+                <FormControl component="fieldset">
                   <FormLabel component="legend">Pick recipients</FormLabel>
                   <FormGroup>
                     {orgs.map((o, i) => (<FormControlLabel key={o.name} control={<Checkbox checked={!!pickedOrgs[o.name] || o.name === selfOrg} disabled={o.name === selfOrg} onChange={(e) => {
@@ -355,17 +381,17 @@ const DepotPlaceOrder=()=> {
                 </FormControl>
               </Box>)}
 
-            <FormControl className={classes.formControl} fullWidth={true}>
+            <FormControl className={` d-none`} fullWidth={true}>
               <TextField label="Message" variant="outlined" value={messageText} onChange={(event) => setMessageText(event.target.value)}/>
             </FormControl>
 
-            <FormControl className={classes.formControlRight}>
+            <FormControl >
               <Button variant="contained" color="primary" type="submit">
                 Submit
               </Button>
             </FormControl>
 
-            <div className={classes.clearFix}/>
+            <div/>
           </Paper>
 
           <br />
@@ -377,7 +403,7 @@ const DepotPlaceOrder=()=> {
           </Paper> */}
         </Grid>
         <Grid item xs={1} md={2} xl={3}>
-          <FormControl style={{ float: 'right' }}>
+          <FormControl style={{ float: 'right',visibility:"hidden" }}>
             <Select value={selectedMember} onChange={(event) => {
             console.log(`Set selected member ${event.target.value}`);
             setSelectedMember(event.target.value);
@@ -399,41 +425,6 @@ const DepotPlaceOrder=()=> {
   )
 }
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        padding: theme.spacing(2),
-    },
-    paper: {
-        padding: theme.spacing(2),
-    },
-    formControl: {
-        marginTop: theme.spacing(2),
-    },
-    formControlRight: {
-        marginTop: theme.spacing(2),
-        float: 'right',
-    },
-    selectEmpty: {
-        marginTop: theme.spacing(2),
-    },
-    upload: {
-        display: 'none',
-    },
-    clearFix: {
-        clear: 'both',
-    },
-    scrollRight: {
-        overflowX: 'scroll',
-        [theme.breakpoints.up('xs')]: {
-            maxWidth: 150,
-        },
-        [theme.breakpoints.up('md')]: {
-            maxWidth: 350,
-        },
-        [theme.breakpoints.up('xl')]: {
-            maxWidth: 450,
-        },
-    },
-}));
+
 
 export default DepotPlaceOrder;

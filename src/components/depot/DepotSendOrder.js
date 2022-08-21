@@ -20,14 +20,17 @@ const MEMBERS = [
 const MAX_MESSAGES = 25;
 const DATE_FORMAT = 'MM/DD/YYYY h:mm:ss A';
 
-const RetailPlaceOrder=()=> {
+const DepotSendOrder=()=> {
 
     // const additionalDetails = useSelector(
     //     (state) => state.AdditionalDetails.additionalDetails
     //   );
     const dispatch = useDispatch();
      let navigate = useNavigate();
+     const productDetails = useSelector((state)=>state.SetProduct.setProduct);
       const userData = useSelector((state) => state.UserDetails.userDetails);
+      const d = productDetails.data.details;
+      const availableProduct = useSelector((state)=>state.AvailableProduct.availableProduct);
       const [user, setUser] = useState({
         name: userData.name,
         deliveryaddress: userData.deliveryaddress,
@@ -40,21 +43,23 @@ const RetailPlaceOrder=()=> {
         },
       };
     //   const [pid,setPid] = useState('');
+      const rate1 = 63.45;
+      const rate2 = 96;
       const [rate,setRate] = useState(63.45);
       const [details, setDetails] = useState({
-        productId: uuid(),
-        product: "BIOETHANOL",
+        productId: productDetails?productDetails.data.details.productId:uuid(),
+        product: d.product,
         productType:"",
-        quantity:"",
+        quantity:d.quantity,
         weight:"",
         price:0,
         sender:userData._id,
-        receiver:"",
+        receiver:d.sender,
         senderType:userData.type,
-        receiverType:"Depot",
+        receiverType:"Retail Unit",
         senderName:userData.name,
-        orderStatus: "fromRet",
-        productStatus: ""
+        orderStatus: "fromDepo",
+        productStatus: "fromDepo"
    })
    const handleChange = (e) => {
        e.preventDefault();
@@ -65,7 +70,6 @@ const RetailPlaceOrder=()=> {
      };
    const classes = useStyles();
    const [products, setProducts] = useState([]);
-   const [receiverId, setReceiverId] = useState("");
    const [messages, setMessages] = useState([]);
    const [messageText, setMessageText] = useState(userData.deliveryaddress);
    const [selectedMember, setSelectedMember] = useState(0);
@@ -76,7 +80,6 @@ const RetailPlaceOrder=()=> {
    const [pickedOrgs, setPickedOrgs] = useState({});
    const [selfOrg, setSelfOrg] = useState('');
    const [confirmationMessage, setConfirmationMessage] = useState('');
-   const allUsers = useSelector((state)=>state.AllUsers.allUsers);
    const arr = [];
    const load = useCallback(async () => {
        const host = MEMBERS[selectedMember];
@@ -125,7 +128,7 @@ const RetailPlaceOrder=()=> {
   
 
    useEffect(() => {
-     if (!userData.accessToken || userData.type!="Retail Unit") {
+     if (!userData.accessToken || userData.type!="Depot") {
        navigate('/login');
      }
    }, [userData, navigate]);
@@ -134,7 +137,7 @@ const RetailPlaceOrder=()=> {
        load();
        console.log(details);
    }, [load]);
-   
+
    useEffect(()=>{
     if(details.product=="BIODIESEL")
     {
@@ -146,36 +149,22 @@ const RetailPlaceOrder=()=> {
         details.price=details.quantity*rate;
     }
    })
+   
   return (
     <div className={`${classes.root} d-flex flex-column align-items-center`}>
-
+      {/* <button onClick={()=>{console.log(productDetails.data.details.productId)}}>Place Order</button> */}
+      {/* <h4>Avaibility:</h4>
+        <h4>BIOETHANOL: {availableProduct.bioethanol}</h4>
+        <h4>BIODIESEL: {availableProduct.biodiesel}</h4>
+        <h4>ETHANOL: {availableProduct.ethanol}</h4>
+        <h4>PETROLEUM: {availableProduct.petroleum}</h4> */}
         <div>{details.senderType}: {userData.name}</div>
         <div>{details.sender}</div>
         <div>Order ID: <span className='text-danger'>{details.productId}</span></div>
 
-        <form className="" style={{width:"80%"}} noValidate>
+      <form className="" style={{width:"80%"}} noValidate>
 
-          <div className='form-row'>
-          <div className='field mb-4' id='product'>
           
-          <select
-            className={`p-2 border-none`}
-            name='product'
-            value={details.product}
-            onChange={handleChange}
-          >
-            <option>BIOETHANOL</option>
-            <option>BIODIESEL</option>
-          </select>
-          {/* <input
-            type='text'
-            placeholder='Type your answer here...'
-            name='product'
-            value={details.product}
-            onChange={handleChange}
-          /> */}
-        </div>
-          </div>
      <div className='form-row'>
       <div className='col-md-1'>{details.product}</div>
      </div>
@@ -187,13 +176,13 @@ const RetailPlaceOrder=()=> {
       </div>
     </div>
    
-    {/* <div className="col-md-3 mb-3">
-     
+    <div className="col-md-3 mb-3">
+      {/* <label for="validationTooltip02">Last name</label> */}
       <input type="number" name='weight' onChange={handleChange} className="form-control ip" id="validationTooltip02" placeholder="Weight(KG)" value={details.weight} required />
       <div className="valid-tooltip">
         Looks good!
       </div>
-    </div> */}
+    </div>
     <div className='mx-3'>
     Rate: {rate} /L
     </div>
@@ -204,30 +193,6 @@ const RetailPlaceOrder=()=> {
 
 
   <div className='form-row'>
-
-  <div className="col-md-4 my-3">
-      <select className='custom-select'  name="receiver" onChange={(e)=>{
-        const selectedId = e.target.value;
-        setReceiverId(selectedId);
-        setDetails({ ...details, [e.target.name]: e.target.value });
-        console.log(details.receiver);
-      }}>
-        <option value="">Select</option>
-        {
-          allUsers.map((d,i)=>{
-            if(d.type=="Depot")
-            {
-              return(
-                <option key={i} value = {d.id}>{d.name}</option>
-              )
-            }
-          })
-        }
-      </select>
-      
-    </div>
-    {/* <div>{receiverId} : ;</div>
-    <div>{details.receiver}</div> */}
  <div className="col-md-4 my-3">
       <input type="text" name='receiver' value={details.receiver} onChange={handleChange} className="form-control ip" id="receiver" placeholder="Depot ID" required />
       <div className="valid-tooltip">
@@ -238,7 +203,7 @@ const RetailPlaceOrder=()=> {
 
    <div className='text-left my-3 mb-4 ip p-2 rounded' style={{width:"50%"}}>
     <div>Delivery Address: </div>
-    <div>{userData.deliveryaddress}</div>
+    <div>{productDetails.data.messageText}</div>
    </div>
   <div className="form-row align-left  p-1 rounded" style={{width:"70%"}}>
     <div className="col-md-3 mb-3 text-left">
@@ -267,7 +232,7 @@ const RetailPlaceOrder=()=> {
   {/* <button className="btn btn-primary" type="submit">Submit form</button> */}
 </form>
 
-       
+        
       <Grid container spacing={3}>
         <Grid item xs={1} md={2} xl={3}/>
         <Grid item xs={10} md={8} xl={6}>
@@ -305,7 +270,7 @@ const RetailPlaceOrder=()=> {
                         },
                     ]);
                 }
-                setConfirmationMessage('Order sent');
+                setConfirmationMessage('Product sent');
             }
             catch (err) {
                 setConfirmationMessage(`Error: ${err}`);
@@ -337,7 +302,7 @@ const RetailPlaceOrder=()=> {
               <TextField label="Message" variant="outlined" value={messageText} onChange={(event) => setMessageText(event.target.value)}/>
             </FormControl>
 
-            <FormControl >
+            <FormControl>
               <Button variant="contained" color="primary" type="submit">
                 Submit
               </Button>
@@ -355,7 +320,7 @@ const RetailPlaceOrder=()=> {
           </Paper> */}
         </Grid>
         <Grid item xs={1} md={2} xl={3}>
-          <FormControl style={{ float: 'right',visibility:"hidden"}}>
+          <FormControl style={{ float: 'right',display:"none" }}>
             <Select value={selectedMember} onChange={(event) => {
             console.log(`Set selected member ${event.target.value}`);
             setSelectedMember(event.target.value);
@@ -414,4 +379,4 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default RetailPlaceOrder;
+export default DepotSendOrder;

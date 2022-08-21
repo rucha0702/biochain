@@ -10,6 +10,7 @@ import { FireFly, } from '../../firefly';
 import ReconnectingWebsocket from 'reconnecting-websocket';
 import dayjs from 'dayjs';
 import uuid from 'react-uuid';
+import { AllUsers } from '../../actions';
 import { SetProduct,AvailableProduct } from '../../actions';
 
 const MEMBERS = [
@@ -20,18 +21,22 @@ const MEMBERS = [
 const MAX_MESSAGES = 25;
 const DATE_FORMAT = 'MM/DD/YYYY h:mm:ss A';
 
-const RetailPlaceOrder=()=> {
+const EthanolSendOrder=()=> {
 
     // const additionalDetails = useSelector(
     //     (state) => state.AdditionalDetails.additionalDetails
     //   );
     const dispatch = useDispatch();
      let navigate = useNavigate();
+     const allUsers = useSelector((state)=>state.AllUsers.allUsers);
+     const productDetails = useSelector((state)=>state.SetProduct.setProduct);
       const userData = useSelector((state) => state.UserDetails.userDetails);
+      const d = productDetails.data.details;
       const [user, setUser] = useState({
         name: userData.name,
         deliveryaddress: userData.deliveryaddress,
       });
+      let recepient;
 
       const config = {
         headers: {
@@ -42,19 +47,19 @@ const RetailPlaceOrder=()=> {
     //   const [pid,setPid] = useState('');
       const [rate,setRate] = useState(63.45);
       const [details, setDetails] = useState({
-        productId: uuid(),
-        product: "BIOETHANOL",
+        productId: productDetails?productDetails.data.details.productId:uuid(),
+        product: "1G ETHANOL",
         productType:"",
-        quantity:"",
+        quantity:d.quantity,
         weight:"",
         price:0,
         sender:userData._id,
-        receiver:"",
+        receiver:d.sender,
         senderType:userData.type,
-        receiverType:"Depot",
+        receiverType:"Refinery",
         senderName:userData.name,
-        orderStatus: "fromRet",
-        productStatus: ""
+        orderStatus: "fromEpu",
+        productStatus: "fromEpu"
    })
    const handleChange = (e) => {
        e.preventDefault();
@@ -65,7 +70,6 @@ const RetailPlaceOrder=()=> {
      };
    const classes = useStyles();
    const [products, setProducts] = useState([]);
-   const [receiverId, setReceiverId] = useState("");
    const [messages, setMessages] = useState([]);
    const [messageText, setMessageText] = useState(userData.deliveryaddress);
    const [selectedMember, setSelectedMember] = useState(0);
@@ -76,7 +80,6 @@ const RetailPlaceOrder=()=> {
    const [pickedOrgs, setPickedOrgs] = useState({});
    const [selfOrg, setSelfOrg] = useState('');
    const [confirmationMessage, setConfirmationMessage] = useState('');
-   const allUsers = useSelector((state)=>state.AllUsers.allUsers);
    const arr = [];
    const load = useCallback(async () => {
        const host = MEMBERS[selectedMember];
@@ -122,10 +125,9 @@ const RetailPlaceOrder=()=> {
        }
        return name;
    };
-  
 
    useEffect(() => {
-     if (!userData.accessToken || userData.type!="Retail Unit") {
+     if (!userData.accessToken || userData.type!="Ethanol Producer") {
        navigate('/login');
      }
    }, [userData, navigate]);
@@ -135,17 +137,7 @@ const RetailPlaceOrder=()=> {
        console.log(details);
    }, [load]);
    
-   useEffect(()=>{
-    if(details.product=="BIODIESEL")
-    {
-        setRate(77);
-        details.price = details.quantity*rate;
-    }
-    else{
-        setRate(63.45);
-        details.price=details.quantity*rate;
-    }
-   })
+   
   return (
     <div className={`${classes.root} d-flex flex-column align-items-center`}>
 
@@ -155,119 +147,72 @@ const RetailPlaceOrder=()=> {
 
         <form className="" style={{width:"80%"}} noValidate>
 
-          <div className='form-row'>
-          <div className='field mb-4' id='product'>
-          
-          <select
-            className={`p-2 border-none`}
-            name='product'
-            value={details.product}
-            onChange={handleChange}
-          >
-            <option>BIOETHANOL</option>
-            <option>BIODIESEL</option>
-          </select>
-          {/* <input
-            type='text'
-            placeholder='Type your answer here...'
-            name='product'
-            value={details.product}
-            onChange={handleChange}
-          /> */}
-        </div>
-          </div>
-     <div className='form-row'>
-      <div className='col-md-1'>{details.product}</div>
-     </div>
-  <div className="form-row">
-    <div className="col-md-3 mb-3">
-      <input type="number" name='quantity' value={details.quantity} onChange={handleChange} className="form-control ip" id="quantity" placeholder="Volume(L)" required />
-      <div className="valid-tooltip">
-        Looks good!
-      </div>
-    </div>
-   
-    {/* <div className="col-md-3 mb-3">
-     
-      <input type="number" name='weight' onChange={handleChange} className="form-control ip" id="validationTooltip02" placeholder="Weight(KG)" value={details.weight} required />
-      <div className="valid-tooltip">
-        Looks good!
-      </div>
-    </div> */}
-    <div className='mx-3'>
-    Rate: {rate} /L
-    </div>
-    <div>
-    Price: {rate*details.quantity} INR
-    </div>
-  </div>
-
-
-  <div className='form-row'>
-
-  <div className="col-md-4 my-3">
-      <select className='custom-select'  name="receiver" onChange={(e)=>{
-        const selectedId = e.target.value;
-        setReceiverId(selectedId);
-        setDetails({ ...details, [e.target.name]: e.target.value });
-        console.log(details.receiver);
-      }}>
-        <option value="">Select</option>
-        {
-          allUsers.map((d,i)=>{
-            if(d.type=="Depot")
-            {
-              return(
-                <option key={i} value = {d.id}>{d.name}</option>
-              )
-            }
-          })
-        }
-      </select>
-      
-    </div>
-    {/* <div>{receiverId} : ;</div>
-    <div>{details.receiver}</div> */}
- <div className="col-md-4 my-3">
-      <input type="text" name='receiver' value={details.receiver} onChange={handleChange} className="form-control ip" id="receiver" placeholder="Depot ID" required />
-      <div className="valid-tooltip">
-        Looks good!
-      </div>
-    </div>
+<div className='form-row text-left'>
+ <div className='col-md-3'>{details.product}</div>
+</div>
+<div className="form-row">
+<div className="col-md-3 mb-3">
+ <input type="number" name='quantity' value={details.quantity} onChange={handleChange} className="form-control ip" id="quantity" placeholder="Volume(L)" required />
+ <div className="valid-tooltip">
+   Looks good!
  </div>
+</div>
 
-   <div className='text-left my-3 mb-4 ip p-2 rounded' style={{width:"50%"}}>
-    <div>Delivery Address: </div>
-    <div>{userData.deliveryaddress}</div>
-   </div>
-  <div className="form-row align-left  p-1 rounded" style={{width:"70%"}}>
-    <div className="col-md-3 mb-3 text-left">
-    City: <span className=''>Noida</span>
-    </div>
-    <div className="col-md-3 mb-3 text-left">
-    State: <span className=''>Uttar Pradesh</span>
-    </div>
-    <div className="col-md-3 mb-3 text-left">
-    Pincode: <span className=''>201301</span>
-    </div>
-  </div>
+<div className="col-md-3 mb-3">
+ <input type="number" name='weight' onChange={handleChange} className="form-control ip" id="validationTooltip02" placeholder="Weight(KG)" value={details.weight} required />
+ <div className="valid-tooltip">
+   Looks good!
+ </div>
+</div>
+<div className='mx-3'>
+Rate: {rate} /L
+</div>
+<div>
+Price: {rate*details.quantity} INR
+</div>
+</div>
 
-  {/* <div className='field' id='receiver'>
-          <label className='question  mx-5 my-2'>
-            Refinery ID <span className='mandatory'>*</span>
-          </label>
-          <input
-            type='text'
-            placeholder='Type your answer here...'
-            name='receiver'
-            value={details.receiver}
-            onChange={handleChange}
-          />
-        </div> */}
-  {/* <button className="btn btn-primary" type="submit">Submit form</button> */}
+
+<div className='form-row'>
+<div className="col-md-4 my-3">
+ <input type="text" name='receiver' value={details.receiver} onChange={handleChange} className="form-control ip" id="receiver" placeholder="Receiver ID" required />
+ <div className="valid-tooltip">
+   Looks good!
+ </div>
+</div>
+</div>
+
+<div className='text-left my-3 mb-4 ip p-2 rounded' style={{width:"50%"}}>
+<div>Delivery Address: </div>
+<div>{productDetails.data.messageText}</div>
+</div>
+<div className="form-row align-left  p-1 rounded" style={{width:"70%"}}>
+<div className="col-md-3 mb-3 text-left">
+City: <span className=''>Noida</span>
+</div>
+<div className="col-md-3 mb-3 text-left">
+State: <span className=''>Uttar Pradesh</span>
+</div>
+<div className="col-md-3 mb-3 text-left">
+Pincode: <span className=''>201301</span>
+</div>
+</div>
+
+{/* <div className='field' id='receiver'>
+     <label className='question  mx-5 my-2'>
+       Refinery ID <span className='mandatory'>*</span>
+     </label>
+     <input
+       type='text'
+       placeholder='Type your answer here...'
+       name='receiver'
+       value={details.receiver}
+       onChange={handleChange}
+     />
+   </div> */}
+{/* <button className="btn btn-primary" type="submit">Submit form</button> */}
 </form>
 
-       
       <Grid container spacing={3}>
         <Grid item xs={1} md={2} xl={3}/>
         <Grid item xs={10} md={8} xl={6}>
@@ -305,7 +250,7 @@ const RetailPlaceOrder=()=> {
                         },
                     ]);
                 }
-                setConfirmationMessage('Order sent');
+                setConfirmationMessage('Product sent');
             }
             catch (err) {
                 setConfirmationMessage(`Error: ${err}`);
@@ -337,7 +282,7 @@ const RetailPlaceOrder=()=> {
               <TextField label="Message" variant="outlined" value={messageText} onChange={(event) => setMessageText(event.target.value)}/>
             </FormControl>
 
-            <FormControl >
+            <FormControl>
               <Button variant="contained" color="primary" type="submit">
                 Submit
               </Button>
@@ -353,9 +298,10 @@ const RetailPlaceOrder=()=> {
 
             <MessageList messages={messages}/>
           </Paper> */}
+
         </Grid>
         <Grid item xs={1} md={2} xl={3}>
-          <FormControl style={{ float: 'right',visibility:"hidden"}}>
+          <FormControl style={{ float: 'right',display:"none" }}>
             <Select value={selectedMember} onChange={(event) => {
             console.log(`Set selected member ${event.target.value}`);
             setSelectedMember(event.target.value);
@@ -414,4 +360,4 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default RetailPlaceOrder;
+export default EthanolSendOrder;

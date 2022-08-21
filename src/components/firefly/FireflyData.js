@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FireFly, } from '../../firefly';
 import ReconnectingWebsocket from 'reconnecting-websocket';
 import { useDispatch, useSelector } from 'react-redux';
-import { UserBlockchainDetails } from '../../actions';
+import { UserBlockchainDetails, AllUsers } from '../../actions';
+import { url } from '../../utilities';
 // import {useState,useEffect} from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
@@ -117,13 +118,13 @@ const FireflyData=()=> {
               </pre> */}
               <pre>
                 {message.data
-                    .map((d) => {if(d){
+                    .map((d,i) => {if(d){
                         // console.log(messages)
                         const obj = JSON.stringify(d.value)
                         const x = d.value.details?d.value.details:"";
                        
                         return(
-                        <div>
+                        <div key={i}>
                             <div>{message.message.header.id}</div>
                              <div>{x.product}</div>
                              <div>{x.type}</div>
@@ -150,8 +151,34 @@ const FireflyData=()=> {
         <TableBody>{rows}</TableBody>
       </Table>);
     };
+
+    const getAllUsers = async()=>{
+        try{
+            const users=[];
+            const response = await axios.get(`${url}/api/auth/getAll`);
+            const data = response.data;
+            console.log(data);
+            for(const user in data)
+            {
+                const obj = {
+                    id: data[user]._id,
+                    name: data[user].name,
+                    type:data[user].type,
+                    deliveryAddress: data[user].deliveryaddress,
+                    email:data[user].email
+
+                }
+                users.push(obj);
+            }
+            console.log("users",users);
+            dispatch(AllUsers(users));
+        }
+        catch(err){
+            console.log("shds",err);
+        }
+    }
     useEffect(() => {
-        load();
+        load();getAllUsers();
     }, [load]);
     return (<div className={classes.root}>
         

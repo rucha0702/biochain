@@ -10,6 +10,9 @@ import { FireFly, } from '../../firefly';
 import ReconnectingWebsocket from 'reconnecting-websocket';
 import dayjs from 'dayjs';
 import uuid from 'react-uuid';
+import { AllUsers } from '../../actions';
+import { SetProduct,AvailableProduct } from '../../actions';
+import './RefineryPlaceOrder.css';
 
 const MEMBERS = [
     'http://localhost:5000',
@@ -26,12 +29,15 @@ const RefineryPlaceOrder=()=> {
     //   );
     const dispatch = useDispatch();
      let navigate = useNavigate();
+     const [receiverId, setReceiverId] = useState("");
+     const allUsers = useSelector((state)=>state.AllUsers.allUsers);
      const productDetails = useSelector((state)=>state.SetProduct.setProduct);
       const userData = useSelector((state) => state.UserDetails.userDetails);
       const [user, setUser] = useState({
         name: userData.name,
         deliveryaddress: userData.deliveryaddress,
       });
+      let recepient;
 
       const config = {
         headers: {
@@ -46,11 +52,15 @@ const RefineryPlaceOrder=()=> {
         product: "1G ETHANOL",
         productType:"",
         quantity:"",
+        weight:"",
         price:0,
         sender:userData._id,
         receiver:"",
         senderType:userData.type,
-        receiverType:""
+        receiverType:"",
+        senderName:userData.name,
+        orderStatus: "fromRef",
+        productStatus: ""
    })
    const handleChange = (e) => {
        e.preventDefault();
@@ -116,67 +126,7 @@ const RefineryPlaceOrder=()=> {
        }
        return name;
    };
-   const MessageList = (options) => {
-       const { messages } = options;
-       const classes = useStyles();
-       const rows = [];
-       for (const message of messages) {
-           const date = dayjs(message.message.header.created);
-           rows.push(<TableRow key={message.message.header.id}>
-         <TableCell>{date.format(DATE_FORMAT)}</TableCell>
-         <TableCell>{orgName(message)}</TableCell>
-         <TableCell className={classes.scrollRight}>
-           <div>
-             {/* <pre>
-               {message.data
-                   .map((d) => JSON.stringify(d?.value || '', null, 2))
-                   .join(', ')}
-             </pre> */}
-             <pre>
-               {message.data
-                   .map((d) => {if(d){
-                       const obj = JSON.stringify(d.value)
-                       const x = d.value.details?d.value.details:"";
-                       if(x!="")
-                       {
-                           arr.push(message)
-                       }
-                       return(
-                       <div>
-                           {/* <div>{d.value.details.map((x)=>{
-                               return(
-                                   <div>
-                                       {x}
-                                   </div>
-                               )
-                           })}</div> */}
-                           {/* <div>{JSON.stringify(d.value.messageText)}</div> */}
-                           <div>{message.message.header.id}</div>
-                            <div>{x.product}</div>
-                            <div>{x.type}</div>
-                            <div>{x.quantity}</div>
-                            <div>{x.price}</div>
-                            <div>{x.sender}</div>
-                            <div>{x.receiver}</div>
-                       </div>
-                   )}
-                   setProducts(arr);})}
-             </pre>
-           </div>
-         </TableCell>
-       </TableRow>);
-       }
-       return (<Table>
-       <TableHead>
-         <TableRow>
-           <TableCell>Time</TableCell>
-           <TableCell>From</TableCell>
-           <TableCell>Data</TableCell>
-         </TableRow>
-       </TableHead>
-       <TableBody>{rows}</TableBody>
-     </Table>);
-   };
+   
 
    useEffect(() => {
      if (!userData.accessToken || userData.type!="Refinery") {
@@ -192,38 +142,45 @@ const RefineryPlaceOrder=()=> {
    useEffect(()=>{
     if(details.product==="1G ETHANOL")
     {
-         setRate(63.5)
+         setRate(63.5);
         details.receiverType = "ETHANOL PRODUCER";
     }
     else{
-        setRate(70)
+        setRate(70);
         details.receiverType = "BIOMASS UNIT";
-    }
-   })
+   }})
+  //  useEffect(()=>{
+  //  if(details.product==="1G ETHANOL")
+  //   {
+  //        for(const i in allUsers){
+  //        if(allUsers[i].type=="Ethanol Producer")
+  //        {
+  //         details.receiver = allUsers[i].id;
+  //         break;
+  //        }
+  //       }
+  //   }
+  //   else{     
+  //       for(const i in allUsers){
+  //         if(allUsers[i].type=="Biomass Unit")
+  //         {
+  //          details.receiver= allUsers[i].id;
+  //          break;
+  //         }
+  //   }
+  //  }},[details.product])
   return (
     <div className={`${classes.root} d-flex flex-column align-items-center`}>
 
         <div>{details.senderType}: {userData.name}</div>
         <div>{details.sender}</div>
         <div>Order ID: <span className='text-danger'>{details.productId}</span></div>
-        <form className='form d-flex flex-column align-items-start'>
-        {/* {
-            Questions.map((ques)=>{
-              return(
-                <div className="field" id={ques.question}>
-                <span>{ques.id}</span>
-                <label>{ques.question}</label>
-                <input type={ques.type} name = {ques.name} value={ques.value} onChange={handleChange} />
-                <a href={ques.urlP}>Prev</a>
-                <a href={ques.urlN}>Next</a>
-                </div>
-              )
-            })
-          } */}
-        <div className='field' id='product'>
-          <label className='question mx-5 my-2'>
-            Product <span className='mandatory'>*</span>
-          </label>
+
+<form className="" style={{width:"80%"}} noValidate>
+
+          <div className='form-row'>
+          <div className='field mb-4' id='product'>
+          
           <select
             className={`p-2 border-none`}
             name='product'
@@ -241,39 +198,91 @@ const RefineryPlaceOrder=()=> {
             onChange={handleChange}
           /> */}
         </div>
-        <div className=' mx-5 my-2'>Rate: {rate} /L</div>
-        <div className=' mx-5 my-2'>Price: {rate*details.quantity} INR</div>
+          </div>
+     <div className='form-row text-left'>
+      <div className='col-md-3'>{details.product}</div>
+     </div>
+  <div className="form-row">
+    <div className="col-md-3 mb-3">
+      <input type="number" name='quantity' value={details.quantity} onChange={handleChange} className="form-control ip" id="quantity" placeholder="Volume(L)" required />
+      <div className="valid-tooltip">
+        Looks good!
+      </div>
+    </div>
+   
+    {/* <div className="col-md-3 mb-3">
+      <input type="number" name='weight' onChange={handleChange} className="form-control ip" id="validationTooltip02" placeholder="Weight(KG)" value={details.weight} required />
+      <div className="valid-tooltip">
+        Looks good!
+      </div>
+    </div> */}
+    <div className='mx-3'>
+    Rate: {rate} /L
+    </div>
+    <div>
+    Price: {rate*details.quantity} INR
+    </div>
+  </div>
 
-        {/* <div className='field' id='type'>
-          <span className='index'>Q2.</span>
-          <label className='question'>
-            Type <span className='mandatory'>*</span>
-          </label>
-          <input
-            type='text'
-            placeholder='Type your answer here...'
-            name='type'
-            value={details.productType}
-            onChange={handleChange}
-          />
-        </div> */}
 
-        <div className='field' id='quantity'>
+  <div className='form-row'>
+
+  <div className="col-md-4 my-3">
+      <select className='custom-select'  name="receiver" onChange={(e)=>{
+        const selectedId = e.target.value;
+        setReceiverId(selectedId);
+        setDetails({ ...details, [e.target.name]: e.target.value });
+        console.log(details.receiver);
+      }}>
+        <option value="">Select Receiver</option>
+        {
+          allUsers.map((d,i)=>{
+            if(details.product=="1G ETHANOL"&&d.type=="Ethanol Producer")
+            {
+              return(
+                <option key={i} value = {d.id}>{d.name}</option>
+              )
+            }
+            else if(details.product=="2G ETHANOL"&&d.type=="Biomass Unit")
+            {
+              return(
+                <option key={i} value = {d.id}>{d.name}</option>
+              )
+            }
+          })
+        }
+      </select>
+      
+    </div>
+    {/* <div>{receiverId}</div>
+    <div>{details.receiver}</div> */}
+ <div className="col-md-4 my-3">
+      <input type="text" name='receiver' value={details.receiver} onChange={handleChange} className="form-control ip" id="receiver" placeholder="Receiver ID" required />
+      <div className="valid-tooltip">
+        Looks good!
+      </div>
+    </div>
+ </div>
+
+   <div className='text-left my-3 mb-4 ip p-2 rounded' style={{width:"50%"}}>
+    <div>Delivery Address: </div>
+    <div>{userData.deliveryaddress}</div>
+   </div>
+  <div className="form-row align-left  p-1 rounded" style={{width:"70%"}}>
+    <div className="col-md-3 mb-3 text-left">
+    City: <span className=''>Noida</span>
+    </div>
+    <div className="col-md-3 mb-3 text-left">
+    State: <span className=''>Uttar Pradesh</span>
+    </div>
+    <div className="col-md-3 mb-3 text-left">
+    Pincode: <span className=''>201301</span>
+    </div>
+  </div>
+
+  {/* <div className='field' id='receiver'>
           <label className='question  mx-5 my-2'>
-            Quantity <span className='mandatory'>*</span>
-          </label>
-          <input
-            type='number'
-            placeholder='Type your answer here...'
-            name='quantity'
-            value={details.quantity}
-            onChange={handleChange}
-          /> L
-        </div>
-
-        <div className='field' id='receiver'>
-          <label className='question  mx-5 my-2'>
-            {details.receiverType} ID <span className='mandatory'>*</span>
+            Refinery ID <span className='mandatory'>*</span>
           </label>
           <input
             type='text'
@@ -282,9 +291,10 @@ const RefineryPlaceOrder=()=> {
             value={details.receiver}
             onChange={handleChange}
           />
-        </div>
+        </div> */}
+  {/* <button className="btn btn-primary" type="submit">Submit form</button> */}
+</form>
 
-      </form>
       <Grid container spacing={3}>
         <Grid item xs={1} md={2} xl={3}/>
         <Grid item xs={10} md={8} xl={6}>
@@ -322,7 +332,7 @@ const RefineryPlaceOrder=()=> {
                         },
                     ]);
                 }
-                setConfirmationMessage('Message sent');
+                setConfirmationMessage('Order sent');
             }
             catch (err) {
                 setConfirmationMessage(`Error: ${err}`);
@@ -350,11 +360,11 @@ const RefineryPlaceOrder=()=> {
                 </FormControl>
               </Box>)}
 
-            <FormControl className={classes.formControl} fullWidth={true}>
+            <FormControl className={`${classes.formControl} d-none`} fullWidth={true}>
               <TextField label="Message" variant="outlined" value={messageText} onChange={(event) => setMessageText(event.target.value)}/>
             </FormControl>
 
-            <FormControl className={classes.formControlRight}>
+            <FormControl>
               <Button variant="contained" color="primary" type="submit">
                 Submit
               </Button>
@@ -370,9 +380,10 @@ const RefineryPlaceOrder=()=> {
 
             <MessageList messages={messages}/>
           </Paper> */}
+
         </Grid>
         <Grid item xs={1} md={2} xl={3}>
-          <FormControl style={{ float: 'right' }}>
+          <FormControl style={{ float: 'right',display:"none" }}>
             <Select value={selectedMember} onChange={(event) => {
             console.log(`Set selected member ${event.target.value}`);
             setSelectedMember(event.target.value);
