@@ -5,6 +5,7 @@ import AllUsers from './AllUsers';
 import SetProduct from './SetProduct';
 import AvailableProduct from './AvailableProduct';
 import SetCurrentProduct from './SetCurrentProduct';
+import SidebarStatus from './SidebarStatus';
 import { combineReducers } from 'redux';
 
 const rootReducer = combineReducers({
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   AllUsers,
   AvailableProduct,
   SetCurrentProduct,
+  SidebarStatus,
 
 });
 

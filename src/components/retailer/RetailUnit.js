@@ -8,12 +8,14 @@ import { Link } from 'react-router-dom';
 // import { SetProduct } from '../../actions';
 import { SetProduct,AvailableProduct } from '../../actions';
 import styles from './RetailUnit.module.css';
+import { Box, Button, FormControl, FormControlLabel, Checkbox, FormLabel, FormGroup, Grid, makeStyles, MenuItem, Paper, Select, Snackbar, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, } from '@material-ui/core';
 import moment from 'moment';
 
 const RetailUnit=()=> {
   let count = 0;
     const dispatch = useDispatch();
      let navigate = useNavigate();
+     const [messages, setMessages] = useState([]);
       const userData = useSelector((state) => state.UserDetails.userDetails);
       const availableProduct = useSelector((state)=>state.AvailableProduct.availableProduct);
       const [available, setAvailable] = useState(availableProduct.bioethanol?availableProduct:{bioethanol:50000,biodiesel:3000});

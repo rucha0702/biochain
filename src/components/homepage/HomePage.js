@@ -2,9 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './HomePage.module.css';
 import Navbar from '../navbar/Navbar';
+import Navbarnew from '../navbarnew/Navbarnew';
+import Footer1 from '../footer1/Footer1';
+import Cover from '../cover/Cover';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import Login from '../loginanant/Login';
+import Footer from '../footer/Footer';
 // import { elements } from '../links/links';
 // import axios from 'axios';
 
@@ -28,23 +33,30 @@ const HomePage = () => {
   //   userData = {};
   // };
   // let sendElement;
-  useEffect(() => {
-    if (!userData.accessToken) {
-      navigate('/');
-    }
+  // useEffect(() => {
+  //   if (!userData.accessToken) {
+  //     navigate('/');
+  //   }
 
-    // elements.map((element, i) => {
-    //   if (element.type == 'login') {
-    //     sendElement = element.body;
-    //   }
-    // });
-    // console.log(elements);
-    // eslint-disable-next-line
-  }, []);
+  //   // elements.map((element, i) => {
+  //   //   if (element.type == 'login') {
+  //   //     sendElement = element.body;
+  //   //   }
+  //   // });
+  //   // console.log(elements);
+  //   // eslint-disable-next-line
+  // }, []);
 
   return (
     <div>
-      <Navbar
+
+      <Navbarnew />
+      <Cover />
+      <Footer1 />
+      <Footer />
+      {/* <Login /> */}
+
+      {/* <Navbar
         element={
           <Link
             className={`mx-2 text-dark text-decoration-none btn border-dark bg-none`}
@@ -77,16 +89,7 @@ const HomePage = () => {
           <div className='m-2'>
             <Link to='/myprofile'>Profile</Link>
           </div>
-          {/* <div className='m-2'>
-            <Link to='/quiz'>Quiz</Link>
-          </div>
-          <div className='m-2'>
-            <Link to='/create'>Create Quiz</Link>
-          </div> */}
-          {/* <div className='m-2'>
-            <button onClick={logout}>Logout</button>
-          </div> */}
-        </div>
+          
         <div
           className={`d-flex justify-content-center w-50 ${styles.btnContainer}`}
         >
@@ -98,7 +101,7 @@ const HomePage = () => {
             Register Now
           </Link>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

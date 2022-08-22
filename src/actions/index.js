@@ -49,6 +49,14 @@ export const AvailableProduct = (data)=>{
   }
 }
 
+export const SidebarStatus = (data)=>{
+  return{
+    type: "SIDEBAR_STATUS",
+    payload:data,
+  }
+}
+
+
 export const LogoutUser = () => {
   return {
     type: 'LOGOUT',
