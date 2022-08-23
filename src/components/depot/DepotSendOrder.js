@@ -17,7 +17,7 @@ const MEMBERS = [
     'http://localhost:5001',
 ];
 
-const MAX_MESSAGES = 25;
+const MAX_MESSAGES = 50;
 const DATE_FORMAT = 'MM/DD/YYYY h:mm:ss A';
 
 const DepotSendOrder=()=> {

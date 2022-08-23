@@ -10,15 +10,17 @@ import { SetProduct,AvailableProduct } from '../../actions';
 import styles from './RetailUnit.module.css';
 import { Box, Button, FormControl, FormControlLabel, Checkbox, FormLabel, FormGroup, Grid, makeStyles, MenuItem, Paper, Select, Snackbar, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, } from '@material-ui/core';
 import moment from 'moment';
+import Consumer from './Consumer';
 
 const RetailUnit=()=> {
   let count = 0;
     const dispatch = useDispatch();
      let navigate = useNavigate();
+     const [flag,setFlag] = useState(0);
      const [messages, setMessages] = useState([]);
       const userData = useSelector((state) => state.UserDetails.userDetails);
       const availableProduct = useSelector((state)=>state.AvailableProduct.availableProduct);
-      const [available, setAvailable] = useState(availableProduct.bioethanol?availableProduct:{bioethanol:50000,biodiesel:3000});
+      const [available, setAvailable] = useState(availableProduct.bioethanol?availableProduct:{bioethanol:5000,biodiesel:3000});
       const [user, setUser] = useState({
         name: userData.name,
         deliveryaddress: userData.deliveryaddress,
@@ -32,7 +34,10 @@ const RetailUnit=()=> {
           Authorization: `Bearer ${userData.accessToken}`,
         },
       };
-      
+      // const setAv = (av)=>{
+      //   setAvailable(av);
+      //   dispatch(AvailableProduct(av))
+      // }
       useEffect(() => {
         if (!userData.accessToken || userData.type!="Retail Unit") {
           navigate('/login');
@@ -42,11 +47,27 @@ const RetailUnit=()=> {
         // console.log(config);
         // console.log(user);
       }, [userData, navigate]);
-
-      useEffect(()=>{
-        dispatch(AvailableProduct(available));
-        console.log(availableProduct);
-      })
+      // useEffect(()=>{
+      //   for(const d in userBlockchainDetails){
+      
+      //     const data = userBlockchainDetails[d].data.details;
+      //     console.log(data)
+      //     if (data.senderType == userData.type) {
+      //       if((data.sender==data.receiver)&&flag!=1)
+      //       {
+      //         setFlag(1);
+      //         console.log(data.availableEth)
+      //         const av = {bioethanol:data.availableEth,biodiesel:data.availableDsl}
+      //         setAvailable(av)
+      //         console.log("in",available)
+      //         // dispatch(AvailableProduct({bioethanol:data.availableEth, biodiesel:data.availableDsl}));
+      //         dispatch(AvailableProduct(av));
+      //       }
+      // }}},[available])
+      // useEffect(()=>{
+      //   // dispatch(AvailableProduct(available));
+      //   console.log(availableProduct);
+      // },[available])
 
   return (
     <div className={styles.page}>
@@ -54,6 +75,7 @@ const RetailUnit=()=> {
         <h4>Avaibility:</h4>
         <h2>BIOETHANOL: {availableProduct.bioethanol}</h2>
         <h2>BIODIESEL: {availableProduct.biodiesel}</h2>
+         <Consumer/>
         <div className='mx-5'>
     <Link className='btn btn-success my-2' to='/rtl/pod'>Place Order</Link>
     {/* <button onClick={()=>{console.log(productDetails.data.details.productId)}}>Place Order</button> */}
@@ -112,11 +134,20 @@ const RetailUnit=()=> {
         <tbody style={{ background: "white", margin: "5px" }}>
           {
 
-
             userBlockchainDetails.map((d,i) => {
               const data = d.data.details;
-              console.log(data)
+              // console.log(data)
               if (data.senderType == userData.type) {
+                // if((data.sender==data.receiver)&&flag!=1)
+                // {
+                //   setFlag(1);
+                //   console.log(data.availableEth)
+                //   const av = {bioethanol:data.availableEth,biodiesel:data.availableDsl}
+                //   setAvailable(av)
+                //   console.log("in",available)
+                //   // dispatch(AvailableProduct({bioethanol:data.availableEth, biodiesel:data.availableDsl}));
+                  
+                // }
                 count = count + 1;
 
                 return (

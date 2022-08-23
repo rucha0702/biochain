@@ -7,6 +7,7 @@ import AvailableProduct from './AvailableProduct';
 import SetCurrentProduct from './SetCurrentProduct';
 import SidebarStatus from './SidebarStatus';
 import { combineReducers } from 'redux';
+import FlagValue from './FlagValue';
 
 const rootReducer = combineReducers({
   AdditionalDetails,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   AvailableProduct,
   SetCurrentProduct,
   SidebarStatus,
+  FlagValue
 
 });
 

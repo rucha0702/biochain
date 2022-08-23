@@ -34,6 +34,22 @@ const TrackProduct=()=> {
      const availableProduct = useSelector((state)=>state.AvailableProduct.availableProduct);
      const [available, setAvailable] = useState(availableProduct);
      const classes = useStyles();
+    //  const [status,setStatus] = useState({
+    //   fromEpu:"",
+    //   fromBmu:"",
+    //   AtRef:"",
+    //   fromRef:"",
+    //   Atdep:"",
+    //   fromDepo:"",
+    //   AtRet:"",
+    //  })
+     const [fromEpu,setFromEpu] = useState("");
+     const [fromBmu,setFromBmu] = useState("");
+     const [AtRef, setAtRef] = useState("");
+     const [fromRef,setFromRef]= useState("");
+     const [AtDep, setAtDep] = useState("");
+     const [fromDepo, setFromDepo] = useState('');
+     const [AtRet,setAtRet] = useState("");
      const d = productDetails.data.details;
      const [user, setUser] = useState({
        name: userData.name,
@@ -44,6 +60,7 @@ const TrackProduct=()=> {
       const host = "http://localhost:5000"
     const userBlockchainDetails = useSelector((state)=>state.UserBlockchainDetails.userBlockchainDetails)
     console.log(userBlockchainDetails);
+
 
     const [details, setDetails] = useState({
       productId: d.productId,
@@ -88,6 +105,8 @@ const TrackProduct=()=> {
               message,
               data: await firefly.current.retrieveData(message.data),
           });
+          console.log("rows:",rows)
+          // console.log("status",status)
         }
         for(const row in rows)
         {
@@ -98,26 +117,51 @@ const TrackProduct=()=> {
           {
             console.log("row: ",rows[row].data[0].value.details.productId)
             track.push(rows[row].data[0]);
-            if(rows[row].data[0].value.details.productStatus=="fromBmu")
+            const time = moment(rows[row].message.confirmed).utc().format('DD-MM-YYYY');
+            const t =moment(rows[row].message.confirmed).format('hh:mm:ss')
+            // moment(obj.created).utc().format('DD-MM-YYYY');
+            console.log(time);
+            const r =rows[row].data[0].value.details;
+            if(r.productStatus=="fromBmu")
             {
               setBmu(true);
+              setFromBmu(`${time}/${t}`);
             }
-            else if(rows[row].data[0].value.details.productStatus=="fromEpu")
+            else if(r.productStatus=="fromEpu")
             {
               setEpu(true);
+              setFromEpu(`${time}/${t}`)
             }
-            else if(rows[row].data[0].value.details.productStatus=="AtDep"||rows[row].data[0].value.details.productStatus=="fromDepo")
+            else if(r.productStatus=="AtDep"||r.productStatus=="fromDepo")
             {
-              console.log(rows[row].data[0].value.details.productStatus)
+              console.log(r.productStatus)
               setDep(true);
+              if(r.productStatus=="AtDep")
+              {
+                setAtDep(`${time}/${t}`);
+              }
+              if(r.productStatus=="fromDepo")
+              {
+                setFromDepo(`${time}/${t}`);
+              }
+
             }
-            else if(rows[row].data[0].value.details.productStatus==("AtRef"||"fromRef"))
+            else if(r.productStatus==("AtRef"||"fromRef"))
             {
               setRef(true);
+              if(r.productStatus=="AtRef")
+              {
+                setAtRef(`${time}/${t}`);
+              }
+              if(r.productStatus=="fromRef")
+              {
+                setFromRef(`${time}/${t}`);
+              }
             }
-            else if(rows[row].data[0].value.details.productStatus=="AtRet")
+            else if(r.productStatus=="AtRet")
             {
               setRet(true);
+              setAtRet(`${time}/${t}`);
             }
           }
         }
@@ -154,18 +198,26 @@ const TrackProduct=()=> {
     const TrackOrder = ()=>{
       return(<div className='m-3 d-flex'>
         <div>
+          <div></div>
           <div className={`${styles.circle} mx-5 ${bmu?"bg-primary":""}`}>Biomass Unit</div>
+          <div>{fromBmu}</div>
         </div>
         <div>
           <div className={`${styles.circle} mx-5 ${epu?"bg-primary":""}`}>Ethanol Producer</div>
+          <div>{fromEpu}</div>
         </div>
         <div>
+          <div>{AtRef}</div>
           <div className={`${styles.circle} mx-5 ${ref?"bg-primary":""}`}>Refinery</div>
+          <div>{fromRef}</div>
         </div>
         <div>
+          <div>{AtDep}</div>
           <div className={`${styles.circle} mx-5 ${dep?"bg-primary":""}`}>Depot</div>
+          <div>{fromDepo}</div>
         </div>
         <div>
+          <div>{AtRet}</div>
           <div className={`${styles.circle} mx-5 ${ret?"bg-primary":""}`}>Retail Unit</div>
         </div>
       </div>)

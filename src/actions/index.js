@@ -55,6 +55,12 @@ export const SidebarStatus = (data)=>{
     payload:data,
   }
 }
+export const FlagValue = (data)=>{
+  return{
+    type: "FLAG_VALUE",
+    payload:data,
+  }
+}
 
 
 export const LogoutUser = () => {
