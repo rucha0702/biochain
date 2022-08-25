@@ -198,9 +198,10 @@ const TrackProduct=()=> {
     const TrackOrder = ()=>{
       return(<div className='m-3 d-flex'>
         <div>
-          <div></div>
+          <div>
           <div className={`${styles.circle} mx-5 ${bmu?"bg-primary":""}`}>Biomass Unit</div>
           <div>{fromBmu}</div>
+          </div>
         </div>
         <div>
           <div className={`${styles.circle} mx-5 ${epu?"bg-primary":""}`}>Ethanol Producer</div>

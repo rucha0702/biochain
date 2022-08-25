@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { url } from '../../utilities';
 import { Link } from 'react-router-dom';
-import { SetProduct, AvailableProduct } from '../../actions';
+import { SetProduct, AvailableProduct,FlagValue } from '../../actions';
 import moment from "moment";
 import styles from './Depot.module.css';
 
@@ -24,6 +24,8 @@ const Depot = () => {
   const userBlockchainDetails = useSelector((state) => state.UserBlockchainDetails.userBlockchainDetails);
   // const setProduct = useSelector((state)=>state.SetProduct.setProduct)
   console.log(userBlockchainDetails);
+  const flagValue = useSelector((state)=>state.FlagValue.flagValue);
+    const [flag,setFlag] = useState(flagValue?flagValue:0);
   const config = {
     headers: {
       'Content-Type': 'application/json',
@@ -41,9 +43,36 @@ const Depot = () => {
     // console.log(user);
   }, [userData, navigate]);
 
-  useEffect(() => {
-    dispatch(AvailableProduct(available));
-  })
+  // useEffect(() => {
+  //   dispatch(AvailableProduct(available));
+  // })
+
+  useEffect(()=>{
+    const arr = userBlockchainDetails.reverse();
+    for(const d in arr){
+      console.log("arr",arr);
+      const data = arr[d].data.details;
+      console.log("pplp",data);
+      console.log('userData',userData);
+      console.log("first")
+      if (data.senderType == userData.type) {
+        if(data.availableBioEth){
+
+            if(flag!=1)
+            {
+             setFlag(1);
+             dispatch(FlagValue(1));
+
+             console.log("here,",data.availableEth)
+            
+            //   const av = {bioethanol:data.availableEth,biodiesel:data.availableDsl}
+              // console.log("in",available)
+              // dispatch(AvailableProduct({bioethanol:data.availableEth, biodiesel:data.availableDsl}));
+              dispatch(AvailableProduct({bioethanol:data.availableBioEth,biodiesel:data.availableDsl,ethanol:data.availableEth,petroleum:data.availablePet}));
+              window.location.reload(false);
+            }
+        }
+  }}},[userBlockchainDetails])
   return (
     <div>
       <div>Depot</div>

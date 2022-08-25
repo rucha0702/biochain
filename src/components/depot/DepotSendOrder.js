@@ -10,7 +10,7 @@ import { FireFly, } from '../../firefly';
 import ReconnectingWebsocket from 'reconnecting-websocket';
 import dayjs from 'dayjs';
 import uuid from 'react-uuid';
-import { SetProduct,AvailableProduct } from '../../actions';
+import { SetProduct,AvailableProduct,FlagValue } from '../../actions';
 
 const MEMBERS = [
     'http://localhost:5000',
@@ -31,11 +31,21 @@ const DepotSendOrder=()=> {
       const userData = useSelector((state) => state.UserDetails.userDetails);
       const d = productDetails.data.details;
       const availableProduct = useSelector((state)=>state.AvailableProduct.availableProduct);
+      const userBlockchainDetails = useSelector((state)=>state.UserBlockchainDetails.userBlockchainDetails)
       const [user, setUser] = useState({
         name: userData.name,
         deliveryaddress: userData.deliveryaddress,
       });
 
+      const [consumed, setConsumed] = useState({
+        bioethanol:0,
+        biodiesel:0,
+        ethanol:0,
+        petroleum:0,
+        sender:userData.id,
+        receiver:d.sender
+    })
+    
       const config = {
         headers: {
           'Content-Type': 'application/json',
@@ -59,20 +69,26 @@ const DepotSendOrder=()=> {
         receiverType:"Retail Unit",
         senderName:userData.name,
         orderStatus: "fromDepo",
-        productStatus: "fromDepo"
+        productStatus: "fromDepo",
+        availableBioEth:availableProduct.bioethanol?availableProduct.bioethanol:10000,
+        availableDsl:availableProduct.biodiesel,
+        availablePet:availableProduct.petroleum,
+        availableEth:availableProduct.ethanol
    })
    const handleChange = (e) => {
        e.preventDefault();
        const name = e.target.name;
        const value = e.target.value;
-   
        setDetails({ ...details, [name]: value });
+      //  setConsumed({...consumed,[name]:value});
      };
    const classes = useStyles();
    const [products, setProducts] = useState([]);
    const [messages, setMessages] = useState([]);
    const [messageText, setMessageText] = useState(userData.deliveryaddress);
    const [selectedMember, setSelectedMember] = useState(0);
+   const flagValue = useSelector((state)=>state.FlagValue.flagValue);
+    const [flag,setFlag] = useState(flagValue?flagValue:0);
    const firefly = useRef(null);
    const ws = useRef(null);
    const [isPrivate, setIsPrivate] = useState(false);
@@ -80,6 +96,7 @@ const DepotSendOrder=()=> {
    const [pickedOrgs, setPickedOrgs] = useState({});
    const [selfOrg, setSelfOrg] = useState('');
    const [confirmationMessage, setConfirmationMessage] = useState('');
+   const [available, setAvailable] = useState({bioethanol:availableProduct.bioethanol?availableProduct.bioethanol:10000,biodiesel:availableProduct.biodiesel?availableProduct.biodiesel:1000,ethanol:availableProduct.ethanol?availableProduct.ethanol:2000,petroleum:availableProduct.petroleum?availableProduct.petroleum:3000});
    const arr = [];
    const load = useCallback(async () => {
        const host = MEMBERS[selectedMember];
@@ -126,7 +143,13 @@ const DepotSendOrder=()=> {
        return name;
    };
   
-
+const updateAvailability = ()=>{
+  // setAvailable({bioethanol:updateEthanol,biodiesel:availableProduct.biodiesel,ethanol:availableProduct.ethanol,petroleum:availableProduct.petroleum})
+  dispatch(AvailableProduct({bioethanol:availableProduct.bioethanol-details.quantity,biodiesel:availableProduct.biodiesel,ethanol:availableProduct.ethanol,petroleum:availableProduct.petroleum}))
+  console.log("ap",availableProduct.bioethanol);
+  console.log(details.quantity);
+  // window.location.reload(false);
+}
    useEffect(() => {
      if (!userData.accessToken || userData.type!="Depot") {
        navigate('/login');
@@ -149,15 +172,43 @@ const DepotSendOrder=()=> {
         details.price=details.quantity*rate;
     }
    })
+
+  //  useEffect(()=>{
+  //   const arr = userBlockchainDetails.reverse();
+  //   for(const d in arr){
+  //     console.log("arr",arr);
+  //     const data = arr[d].data.details;
+  //     console.log("pplp",data);
+  //     console.log('userData',userData);
+  //     console.log("first")
+  //     if (data.senderType == userData.type) {
+  //       if(data.availableBioEth){
+
+  //           if(flag!=1)
+  //           {
+  //            setFlag(1);
+  //            dispatch(FlagValue(1));
+
+  //            console.log("here,",data.availableEth)
+            
+  //           //   const av = {bioethanol:data.availableEth,biodiesel:data.availableDsl}
+  //             // console.log("in",available)
+  //             // dispatch(AvailableProduct({bioethanol:data.availableEth, biodiesel:data.availableDsl}));
+  //             dispatch(AvailableProduct({bioethanol:data.availableBioEth,biodiesel:data.availableDsl,ethanol:data.availableEth,petroleum:data.availablePet}));
+  //             window.location.reload(false);
+  //           }
+  //       }
+  // }}},[userBlockchainDetails])
    
   return (
     <div className={`${classes.root} d-flex flex-column align-items-center`}>
       {/* <button onClick={()=>{console.log(productDetails.data.details.productId)}}>Place Order</button> */}
-      {/* <h4>Avaibility:</h4>
-        <h4>BIOETHANOL: {availableProduct.bioethanol}</h4>
-        <h4>BIODIESEL: {availableProduct.biodiesel}</h4>
-        <h4>ETHANOL: {availableProduct.ethanol}</h4>
-        <h4>PETROLEUM: {availableProduct.petroleum}</h4> */}
+      <h4>Avaibility:</h4>
+      <div className='d-flex'>
+        <h6 className='mx-2'>BIOETHANOL: {details.availableBioEth}</h6>
+        <h6 className='mx-2'>BIODIESEL: {availableProduct.biodiesel}</h6>
+        <h6 className='mx-2'>ETHANOL: {availableProduct.ethanol}</h6>
+        <h6 className='mx-2'>PETROLEUM: {availableProduct.petroleum}</h6></div>
         <div>{details.senderType}: {userData.name}</div>
         <div>{details.sender}</div>
         <div>Order ID: <span className='text-danger'>{details.productId}</span></div>
@@ -170,7 +221,7 @@ const DepotSendOrder=()=> {
      </div>
   <div className="form-row">
     <div className="col-md-3 mb-3">
-      <input type="number" name='quantity' value={details.quantity} onChange={handleChange} className="form-control ip" id="quantity" placeholder="Volume(L)" required />
+      <input type="number" name='quantity' value={details.bioethanol} onChange={handleChange} className="form-control ip" id="quantity" placeholder="Volume(L)" required />
       <div className="valid-tooltip">
         Looks good!
       </div>
@@ -301,7 +352,11 @@ const DepotSendOrder=()=> {
             <FormControl className={`${classes.formControl} d-none`} fullWidth={true}>
               <TextField label="Message" variant="outlined" value={messageText} onChange={(event) => setMessageText(event.target.value)}/>
             </FormControl>
-
+            <FormControl className='mx-3'>
+              <Button variant="contained" color="primary" onClick={updateAvailability}>
+                Confirm
+              </Button>
+            </FormControl>
             <FormControl>
               <Button variant="contained" color="primary" type="submit">
                 Submit
